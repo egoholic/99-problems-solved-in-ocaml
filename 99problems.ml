@@ -111,3 +111,74 @@ let pack l =
   | [] -> []
   | h :: t -> _pack t h [h] [] |> rev;;
 
+(* 10. Run-length encoding of a list. (easy) *)
+
+let encode l =
+  let rec _encode l prev count rlist =
+    match l with
+    | [] -> rlist
+    | h :: t -> if h = prev then
+                  _encode t h (1 + count) rlist
+                else
+                  _encode t h 1 ((count, prev) :: rlist) in
+  match l with
+  | [] -> []
+  | h :: t -> _encode t h 1 [] |> rev;;
+
+
+(* 11. Modified run-length encoding. (easy) *)
+type 'a rle =
+  | One of 'a
+  | Many of int * 'a;;
+
+let encode l =
+  let rec _encode l prev count rlist =
+    match l with
+    | [] -> let rle = if count > 1 then Many(count, prev) else One prev in
+            rle :: rlist
+    | h :: t -> if h = prev then
+                  _encode t h (1 + count) rlist
+                else
+                  let rle = if count > 1 then Many(count, prev) else One prev in
+                  _encode t h 1 (rle :: rlist) in
+  match l with
+  | [] -> []
+  | h :: t -> _encode t h 1 [] |> rev;;
+
+
+(* 12. Decode a run-length encoded list. (medium) *)
+
+let decode l =
+  let rec list_from c x acc =
+    if c > 0 then x :: (list_from (c - 1) x acc) else acc in
+  let rec aux l acc =
+    match l with
+    | [] -> acc
+    | h :: t -> match h with
+                | One x -> aux t (x :: acc)
+                | Many(c, x) -> aux t (list_from c x acc) in
+  aux l [] |> rev;;
+
+(* 14. Duplicate the elements of a list. (easy) *)
+
+let rec duplicate = function
+  | [] -> []
+  | h :: t -> h :: h :: (duplicate t);;
+
+  (* with tail optimization *)
+
+let duplicate l =
+  let rec aux l acc =
+    match l with
+    | [] -> acc
+    | h :: t -> aux t (h :: h :: acc) in
+  aux l [] |> rev;;
+
+(* 15. Replicate the elements of a list a given number of times. (medium) *)
+
+let rec replicate l c =
+  let rec list_of e c acc =
+    if c > 1 then e :: (list_of e (c - 1) acc) else e :: acc in
+  match l with
+  | [] -> []
+  | h :: t -> (list_of h c (replicate t c));;
