@@ -182,3 +182,35 @@ let rec replicate l c =
   match l with
   | [] -> []
   | h :: t -> (list_of h c (replicate t c));;
+
+(* or with tail optimization *)
+
+let replicate l c =
+  let rec list_of e c acc =
+    if c > 1 then list_of e (c - 1) (e :: acc) else e :: acc in
+  let rec aux l acc =
+    match l with
+    | [] -> acc
+    | h :: [] -> list_of h c acc
+    | h :: t -> aux t (list_of h c acc) in
+  aux l [] |> rev;;
+
+(* 16. Drop every N'th element from a list. (medium) *)
+let drop l ni =
+  let rec aux l n =
+    match l with
+    | [] -> []
+    | h :: t -> if n > 1 then h :: (aux t (n - 1)) else aux t ni in
+  aux l ni;;
+
+
+(* or with tail optimization *)
+
+let drop l ni =
+  let rec aux l n acc =
+    match l with
+    | [] -> acc
+    | h :: t -> if n > 1 then aux t (n - 1) (h :: acc) else aux t ni acc in
+  aux l ni [] |> rev;;
+
+(* 17. Split a list into two parts; the length of the first part is given. (easy) *)
